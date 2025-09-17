@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/auth-context'
 import { Plus, Menu, X, User, LogOut } from 'lucide-react'
 import AuthModal from './auth-modal'
+import { Button } from '@/components/ui/button'
 
 interface HeaderProps {
   onAddProduct?: () => void
@@ -37,60 +38,61 @@ export default function Header({ onAddProduct }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-white/95 backdrop-blur-md border-b border-white/20 shadow-lg sticky top-0 z-50">
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                <span className="text-white font-bold text-lg">B</span>
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-sm">B</span>
               </div>
-              <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold text-foreground">
                 Best Of Everything
-              </div>
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
-              <button
+              <Button
                 onClick={handleAddProductClick}
-                className="btn-primary flex items-center space-x-2"
+                className="flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Product</span>
-              </button>
+                Add Product
+              </Button>
 
               {loading ? (
-                <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
+                <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
               ) : user ? (
                 <div className="relative">
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
+                    className="flex items-center gap-2"
                   >
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-blue-600" />
+                    <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center">
+                      <User className="w-3 h-3" />
                     </div>
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-sm">
                       {profile?.display_name || user.email?.split('@')[0]}
                     </span>
-                  </button>
+                  </Button>
 
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                      <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
+                    <div className="absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg py-1 z-50 border border-border">
+                      <div className="px-4 py-2 text-sm text-muted-foreground border-b border-border">
                         {user.email}
                       </div>
                       <Link
                         href="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm hover:bg-muted"
                         onClick={() => setShowUserMenu(false)}
                       >
                         My Profile
                       </Link>
                       <button
                         onClick={handleSignOut}
-                        className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex w-full items-center px-4 py-2 text-sm hover:bg-muted"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
                         Sign Out
@@ -99,69 +101,69 @@ export default function Header({ onAddProduct }: HeaderProps) {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center space-x-3">
-                  <button
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
                     onClick={() => handleAuthClick('signin')}
-                    className="btn-secondary"
                   >
                     Sign In
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => handleAuthClick('signup')}
-                    className="btn-primary"
                   >
                     Sign Up
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
 
             {/* Mobile menu button */}
             <div className="md:hidden">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               >
                 {showMobileMenu ? (
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <Menu className="w-5 h-5" />
                 )}
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Mobile Navigation */}
           {showMobileMenu && (
-            <div className="md:hidden border-t border-gray-200 py-4">
+            <div className="md:hidden border-t border-border py-4">
               <div className="space-y-3">
-                <button
+                <Button
                   onClick={handleAddProductClick}
-                  className="flex items-center space-x-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="w-full justify-start gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Add Product</span>
-                </button>
+                  Add Product
+                </Button>
 
                 {loading ? (
                   <div className="px-4 py-2">
-                    <div className="w-full h-8 bg-gray-200 rounded animate-pulse" />
+                    <div className="w-full h-8 bg-muted rounded animate-pulse" />
                   </div>
                 ) : user ? (
                   <div className="space-y-2">
-                    <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
+                    <div className="px-4 py-2 text-sm text-muted-foreground border-b border-border">
                       Signed in as {user.email}
                     </div>
                     <Link
                       href="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                      className="block px-4 py-2 text-sm hover:bg-muted rounded"
                       onClick={() => setShowMobileMenu(false)}
                     >
                       My Profile
                     </Link>
                     <button
                       onClick={handleSignOut}
-                      className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                      className="flex w-full items-center px-4 py-2 text-sm hover:bg-muted rounded"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out
@@ -169,18 +171,19 @@ export default function Header({ onAddProduct }: HeaderProps) {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={() => handleAuthClick('signin')}
-                      className="block w-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded"
+                      className="w-full justify-start"
                     >
                       Sign In
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleAuthClick('signup')}
-                      className="block w-full px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900"
+                      className="w-full justify-start"
                     >
                       Sign Up
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>

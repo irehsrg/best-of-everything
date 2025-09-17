@@ -4,7 +4,8 @@ import { Product, Category, SearchFilters } from '@/types'
 export async function getProducts(
   filters: SearchFilters = {},
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
+  userId?: string
 ) {
   let query = supabase
     .from('products')
@@ -60,14 +61,34 @@ export async function getProducts(
 
   if (error) throw error
 
-  return { products: data as Product[], count }
+  let products = data as Product[]
+
+  // If user is provided, check which products they voted for
+  if (userId && products.length > 0) {
+    const productIds = products.map(p => p.id)
+    const { data: votes } = await supabase
+      .from('votes')
+      .select('product_id')
+      .eq('user_id', userId)
+      .in('product_id', productIds)
+
+    const votedProductIds = new Set(votes?.map((v: any) => v.product_id) || [])
+
+    products = products.map(product => ({
+      ...product,
+      user_voted: votedProductIds.has(product.id)
+    }))
+  }
+
+  return { products, count }
 }
 
 export async function searchProducts(
   searchTerm: string,
   filters: SearchFilters = {},
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
+  userId?: string
 ) {
   let query = supabase
     .from('products')
@@ -123,7 +144,26 @@ export async function searchProducts(
 
   if (error) throw error
 
-  return data as Product[]
+  let products = data as Product[]
+
+  // If user is provided, check which products they voted for
+  if (userId && products.length > 0) {
+    const productIds = products.map(p => p.id)
+    const { data: votes } = await supabase
+      .from('votes')
+      .select('product_id')
+      .eq('user_id', userId)
+      .in('product_id', productIds)
+
+    const votedProductIds = new Set(votes?.map((v: any) => v.product_id) || [])
+
+    products = products.map(product => ({
+      ...product,
+      user_voted: votedProductIds.has(product.id)
+    }))
+  }
+
+  return products
 }
 
 export async function getProduct(id: string, userId?: string) {
@@ -279,4 +319,25 @@ export async function getTrendingProducts(limit: number = 10) {
   if (error) throw error
 
   return data as Product[]
+}
+
+export async function getStatistics() {
+  const [
+    { count: productCount },
+    { count: userCount },
+    { count: voteCount },
+    { count: categoryCount }
+  ] = await Promise.all([
+    supabase.from('products').select('*', { count: 'exact', head: true }),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('votes').select('*', { count: 'exact', head: true }),
+    supabase.from('categories').select('*', { count: 'exact', head: true })
+  ])
+
+  return {
+    products: productCount || 0,
+    users: userCount || 0,
+    votes: voteCount || 0,
+    categories: categoryCount || 0
+  }
 }

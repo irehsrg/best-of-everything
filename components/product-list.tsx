@@ -5,6 +5,7 @@ import { Product, SearchFilters } from '@/types'
 import { getProducts, searchProducts } from '@/lib/database'
 import ProductCard from './product-card'
 import { Loader2 } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
 
 interface ProductListProps {
   searchTerm?: string
@@ -13,6 +14,7 @@ interface ProductListProps {
 }
 
 export default function ProductList({ searchTerm = '', filters = {}, refreshTrigger }: ProductListProps) {
+  const { user } = useAuth()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -22,46 +24,69 @@ export default function ProductList({ searchTerm = '', filters = {}, refreshTrig
 
   const LIMIT = 20
 
-  const loadProducts = async (reset = false) => {
-    if (reset) {
-      setLoading(true)
-      setProducts([])
-      setOffset(0)
-      setError('')
-    } else {
-      setLoadingMore(true)
+  useEffect(() => {
+    const loadProducts = async (reset = false) => {
+      if (reset) {
+        setLoading(true)
+        setProducts([])
+        setOffset(0)
+        setError('')
+      } else {
+        setLoadingMore(true)
+      }
+
+      try {
+        const currentOffset = reset ? 0 : offset
+        let result: Product[]
+
+        if (searchTerm.trim()) {
+          result = await searchProducts(searchTerm, filters, LIMIT, currentOffset, user?.id)
+        } else {
+          const data = await getProducts(filters, LIMIT, currentOffset, user?.id)
+          result = data.products
+        }
+
+        if (reset) {
+          setProducts(result)
+        } else {
+          setProducts(prev => [...prev, ...result])
+        }
+
+        setHasMore(result.length === LIMIT)
+        setOffset(currentOffset + LIMIT)
+      } catch (err: any) {
+        setError(err.message || 'Failed to load products')
+      } finally {
+        setLoading(false)
+        setLoadingMore(false)
+      }
     }
 
+    loadProducts(true)
+  }, [searchTerm, filters, refreshTrigger, user?.id, offset])
+
+  const loadMoreProducts = async () => {
+    setLoadingMore(true)
+
     try {
-      const currentOffset = reset ? 0 : offset
       let result: Product[]
 
       if (searchTerm.trim()) {
-        result = await searchProducts(searchTerm, filters, LIMIT, currentOffset)
+        result = await searchProducts(searchTerm, filters, LIMIT, offset, user?.id)
       } else {
-        const data = await getProducts(filters, LIMIT, currentOffset)
+        const data = await getProducts(filters, LIMIT, offset, user?.id)
         result = data.products
       }
 
-      if (reset) {
-        setProducts(result)
-      } else {
-        setProducts(prev => [...prev, ...result])
-      }
-
+      setProducts(prev => [...prev, ...result])
       setHasMore(result.length === LIMIT)
-      setOffset(currentOffset + LIMIT)
+      setOffset(offset + LIMIT)
     } catch (err: any) {
       setError(err.message || 'Failed to load products')
     } finally {
-      setLoading(false)
       setLoadingMore(false)
     }
   }
-
-  useEffect(() => {
-    loadProducts(true)
-  }, [searchTerm, filters, refreshTrigger]) // loadProducts is defined in component scope
 
   const handleVoteUpdate = (productId: string, newVoteCount: number, userVoted: boolean) => {
     setProducts(prev =>
@@ -86,7 +111,7 @@ export default function ProductList({ searchTerm = '', filters = {}, refreshTrig
       <div className="text-center py-12">
         <p className="text-red-600 mb-4">{error}</p>
         <button
-          onClick={() => loadProducts(true)}
+          onClick={() => window.location.reload()}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Try Again
@@ -123,7 +148,7 @@ export default function ProductList({ searchTerm = '', filters = {}, refreshTrig
       {hasMore && (
         <div className="text-center py-4">
           <button
-            onClick={() => loadProducts(false)}
+            onClick={loadMoreProducts}
             disabled={loadingMore}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center mx-auto"
           >

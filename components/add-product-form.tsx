@@ -46,6 +46,14 @@ export default function AddProductForm({ isOpen, onClose, onProductAdded }: AddP
     setError('')
 
     try {
+      console.log('Adding product with data:', {
+        name: name.trim(),
+        description: description.trim(),
+        category: categories,
+        added_by: user.id,
+        image_url: imageUrl.trim() || undefined,
+      })
+
       await addProduct({
         name: name.trim(),
         description: description.trim(),
@@ -53,6 +61,8 @@ export default function AddProductForm({ isOpen, onClose, onProductAdded }: AddP
         added_by: user.id,
         image_url: imageUrl.trim() || undefined,
       })
+
+      console.log('Product added successfully')
 
       // Reset form
       setName('')
