@@ -61,26 +61,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist, create one
-        const { data: newProfile, error: createError } = await (supabase
-          .from('profiles') as any)
-          .insert({
-            id: userId,
-            email: user?.email || '',
-            email_verified: user?.email_confirmed_at != null,
-          })
-          .select()
+        // Profile doesn't exist, the trigger should have created it
+        // Let's wait a moment and try again
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        const { data: retryData, error: retryError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
           .single()
 
-        if (createError) throw createError
-        setProfile(newProfile)
+        if (retryError) {
+          console.log('Profile still not found, trigger may not be working')
+          setProfile(null)
+        } else {
+          setProfile(retryData)
+        }
       } else if (error) {
-        throw error
+        console.error('Profile fetch error:', error)
+        setProfile(null)
       } else {
         setProfile(data)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
+      setProfile(null)
     }
   }
 
