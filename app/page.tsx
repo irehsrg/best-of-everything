@@ -31,18 +31,27 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Header onAddProduct={() => setShowAddProduct(true)} />
 
       {/* Hero Section */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Best Of Everything
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-pattern opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+
+        <div className="relative container mx-auto px-4 py-16 md:py-24">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
+              Best Of{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
+                Everything
+              </span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Find and vote on the best products in any category. Help others discover great products through community voting.
+            <p className="text-xl md:text-2xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
+              Discover and vote on the best products in every category.
+              <br className="hidden md:block" />
+              Join thousands of users building the ultimate product guide.
             </p>
 
             <div className="max-w-2xl mx-auto">
@@ -50,29 +59,37 @@ export default function HomePage() {
                 value={searchTerm}
                 onChange={setSearchTerm}
                 onSearch={handleSearch}
+                className="shadow-2xl"
               />
             </div>
           </div>
 
-          {/* Quick stats or trending categories could go here */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">1000+</div>
-              <div className="text-sm text-gray-600">Products</div>
+          {/* Enhanced Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+            <div className="text-center glass rounded-2xl p-6 backdrop-blur-sm">
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">1000+</div>
+              <div className="text-blue-200 font-medium">Products</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">5000+</div>
-              <div className="text-sm text-gray-600">Votes</div>
+            <div className="text-center glass rounded-2xl p-6 backdrop-blur-sm">
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">5000+</div>
+              <div className="text-blue-200 font-medium">Votes</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">500+</div>
-              <div className="text-sm text-gray-600">Users</div>
+            <div className="text-center glass rounded-2xl p-6 backdrop-blur-sm">
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">500+</div>
+              <div className="text-blue-200 font-medium">Users</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">10</div>
-              <div className="text-sm text-gray-600">Categories</div>
+            <div className="text-center glass rounded-2xl p-6 backdrop-blur-sm">
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">10</div>
+              <div className="text-blue-200 font-medium">Categories</div>
             </div>
           </div>
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="absolute -bottom-1 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="rgb(248 250 252)"/>
+          </svg>
         </div>
       </div>
 
@@ -83,24 +100,33 @@ export default function HomePage() {
       />
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {searchTerm ? `Search results for "${searchTerm}"` : 'All Products'}
+      <div className="container mx-auto px-4 py-12">
+        <div className="mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            {searchTerm ? (
+              <>
+                Search results for{' '}
+                <span className="text-gradient">&ldquo;{searchTerm}&rdquo;</span>
+              </>
+            ) : (
+              'Trending Products'
+            )}
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-lg text-gray-600">
             {searchTerm
-              ? 'Showing products matching your search'
-              : 'Discover the best products voted by the community'
+              ? 'Find the best products matching your search'
+              : 'Discover the top-rated products voted by our community'
             }
           </p>
         </div>
 
-        <ProductList
-          searchTerm={searchTerm}
-          filters={filters}
-          refreshTrigger={refreshTrigger}
-        />
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-1">
+          <ProductList
+            searchTerm={searchTerm}
+            filters={filters}
+            refreshTrigger={refreshTrigger}
+          />
+        </div>
       </div>
 
       {/* Add Product Modal */}
