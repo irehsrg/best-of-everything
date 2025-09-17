@@ -1,0 +1,38 @@
+Build a comprehensive product voting website called "Best Of Everything" where users can find and vote on the best products in any category. This should be a complete, deployable web application.
+
+CORE FUNCTIONALITY:
+- Users can search for any product (vacuum cleaners, cars, microwaves, etc.)
+- If a product doesn't exist, users can add it with basic info (name, category, description)
+- Users can upvote products they own/recommend (one vote per user per product)
+- Display products ranked by votes with vote counts visible
+- Categories should be flexible/tag-based rather than rigid hierarchies
+- Focus on US market products initially
+
+TECHNICAL REQUIREMENTS:
+- Use completely free hosting (Firebase, Netlify + Supabase, or Vercel + PlanetScale)
+- Responsive design that works on mobile and desktop
+- Fast search functionality across all products
+- Simple user authentication (email/password or Google OAuth)
+- Clean, modern UI that prioritizes usability over flashiness
+- Anti-gaming measures: email verification, rate limiting, basic bot detection
+
+USER FLOW:
+1. Homepage with search bar and trending/popular products
+2. Search results show products with vote counts
+3. Product pages show details, current ranking, and vote button
+4. "Add Product" flow for new items
+5. Basic user profiles showing voting history
+
+DATA STRUCTURE:
+- Products: name, description, category tags, total votes, date added
+- Users: email, verified status, join date
+- Votes: user_id, product_id, timestamp
+- Categories: flexible tagging system
+
+ANTI-MANIPULATION:
+- Require email verification to vote
+- One vote per user per product
+- Rate limiting on voting and product submission
+- Flag products with suspicious voting patterns
+
+Set up the entire project structure, implement all features, configure the database, set up authentication, deploy to free hosting, and provide clear documentation for maintenance and updates. Make it production-ready.
