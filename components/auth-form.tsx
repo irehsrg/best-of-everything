@@ -24,22 +24,41 @@ export default function AuthForm({ mode, onToggle, onSuccess }: AuthFormProps) {
 
     try {
       if (mode === 'signup') {
-        const { error } = await supabase.auth.signUp({
+        console.log('Attempting to sign up user with email:', email)
+
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
         })
+
+        console.log('Signup result:', { data, error })
+
         if (error) throw error
-        setMessage('Check your email for the confirmation link!')
+
+        if (data.user) {
+          console.log('User created successfully:', data.user.id)
+          setMessage('Account created! Check your email for the confirmation link.')
+        } else {
+          setMessage('Check your email for the confirmation link!')
+        }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log('Attempting to sign in user with email:', email)
+
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
+
+        console.log('Signin result:', { data, error })
+
         if (error) throw error
+
+        console.log('Sign in successful')
         onSuccess()
       }
     } catch (error: any) {
-      setError(error.message)
+      console.error('Auth error:', error)
+      setError(`Authentication failed: ${error.message}`)
     } finally {
       setLoading(false)
     }

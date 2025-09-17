@@ -61,26 +61,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist, the trigger should have created it
-        // Let's wait a moment and try again
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Profile doesn't exist, create it manually
+        console.log('Profile not found, creating manually...')
 
-        const { data: retryData, error: retryError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single()
+        try {
+          const { data: userData } = await supabase.auth.getUser()
+          const userEmail = userData.user?.email || user?.email || ''
+          const emailVerified = userData.user?.email_confirmed_at != null
 
-        if (retryError) {
-          console.log('Profile still not found, trigger may not be working')
+          console.log('Creating profile for:', { userId, userEmail, emailVerified })
+
+          const { data: newProfile, error: createError } = await (supabase
+            .from('profiles') as any)
+            .insert({
+              id: userId,
+              email: userEmail,
+              email_verified: emailVerified,
+              display_name: null
+            })
+            .select()
+            .single()
+
+          if (createError) {
+            console.error('Failed to create profile:', createError)
+            // Try one more time with a different approach
+            await new Promise(resolve => setTimeout(resolve, 2000))
+
+            const { data: retryProfile, error: retryError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', userId)
+              .single()
+
+            if (!retryError && retryProfile) {
+              console.log('Profile found on retry!')
+              setProfile(retryProfile)
+            } else {
+              console.error('Profile creation failed completely:', retryError)
+              setProfile(null)
+            }
+          } else {
+            console.log('Profile created successfully:', newProfile)
+            setProfile(newProfile)
+          }
+        } catch (createError) {
+          console.error('Exception creating profile:', createError)
           setProfile(null)
-        } else {
-          setProfile(retryData)
         }
       } else if (error) {
         console.error('Profile fetch error:', error)
         setProfile(null)
       } else {
+        console.log('Profile found:', data)
         setProfile(data)
       }
     } catch (error) {
